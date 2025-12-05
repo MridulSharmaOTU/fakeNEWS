@@ -1,2 +1,2 @@
 # fakeNEWS
-This is a Neural Network which takes a dataset from kaggle.com to detect fake news by training the model on real 
+This is a Neural Network which takes a dataset from kaggle.com to detect fake news by training the model on real and fake dataset from [Kaggle](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset).
