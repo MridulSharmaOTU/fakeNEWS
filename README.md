@@ -1,164 +1,136 @@
-# Fake News Detection with Classical Models and Pre-trained Transformers
+# Fake News Detection – Worksheet README
 
-Online misinformation spreads rapidly through social media and news sites, shaping public opinion on politics, health, and global events. Manual fact-checking cannot keep up with the volume of content, so automated fake news detection is a critical practical problem.
+This worksheet demonstrates how to fine‑tune a pre‑trained neural network to detect fake news using a real‑world dataset from Kaggle.
 
-In this project, we use the **“Fake and Real News” dataset (ISOT Fake News detection dataset)** from Kaggle, which contains news articles labeled as *fake* or *real* along with their titles, full text, subject category, and publication date:
-https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset
+## 1. Problem Overview
 
-Our goal is to **build and compare different machine learning models** for automatically classifying news articles as fake or real based on their text content.
+Online misinformation spreads quickly through social media and news sites, influencing public opinion about politics, health, and current events. Manually checking every article is impossible, so we treat **fake news detection** as a supervised machine learning problem:
 
-## 1. Dataset Description
+> **Goal:** Given the text of a news article, automatically predict whether it is **fake** or **real**.
 
-The dataset is provided as two CSV files:
-- `Fake.csv` – articles identified as fake news  
-- `True.csv` – articles identified as real news  
+In this worksheet we:
 
-Common columns include:
-- **title** – headline of the article  
-- **text** – main body of the article  
-- **subject** – topic category (e.g., politics, world news)  
-- **date** – publication date  
+* Load and clean a labeled fake/real news dataset.
+* Split the data into training, validation, and test sets.
+* Fine‑tune a pre‑trained **DistilBERT** model (a small Transformer) for binary classification.
+* Evaluate the model using accuracy, precision, recall, F1‑score, and a confusion matrix.
 
-For this project, each **row is one news article**, and the **target label** will be:
-- `1` = real news  
-- `0` = fake news  
+## 2. Dataset
 
-We will:
-- Merge the two CSVs into a single dataset
-- Add an explicit binary column `label` ∈ {0, 1}
-- Use primarily the **text** (and optionally **title**) as input features
+We use the Kaggle **“Fake and Real News”** dataset (ISOT Fake News Detection dataset), which is provided in two CSV files:
 
-## 2. Learning Problem Formulation
+* `Fake.csv` – articles labeled as fake news
+* `True.csv` – articles labeled as real news
 
-### 2.1 Task Type
+Important columns:
 
-This is a **supervised binary text classification** problem:
+* `title` – headline of the article
+* `text` – main body of the article
+* `subject` – topic category (e.g., politics)
+* `date` – publication date
 
-- **Input**: A news article’s text (optionally concatenated with its title).
-- **Output**: A binary label indicating whether the article is *fake* or *real*.
+For this worksheet:
 
-Formally, let:
-- \( x_i \) be the text of article \( i \)
-- \( y_i \in \{0, 1\} \) be the label, where 0 = fake, 1 = real
+* Each **row** corresponds to **one news article**.
+* We create a binary **label** column:
 
-We want to learn a function
-\[
-f_\theta: \text{text} \rightarrow \{0, 1\}
-\]
-parameterized by \(\theta\), that predicts whether a previously unseen news article is fake or real.
+  * `0` = fake
+  * `1` = real
+* We combine `title` and `text` into a single input field used by the model.
 
-### 2.2 Objective
+## 3. Learning Problem
 
-We train \( f_\theta \) to minimize a standard **binary classification loss**, such as **binary cross-entropy**, on a labeled training set, and evaluate generalization on a held-out validation and test set.
+This is a **supervised binary text classification** task.
 
-Primary performance metrics:
-- **Accuracy**
-- **Precision, Recall, F1-score** for each class (fake vs real)
-- **Confusion matrix** to see typical error types (e.g., fake classified as real)
+* **Input:** `x` = article text (title + body).
+* **Target:** `y ∈ {0, 1}` where 0 = fake, 1 = real.
 
-## 3. Research Questions and Motivation
+We learn a function
 
-The high-level motivation is to understand **how much benefit we gain from modern pre-trained language models** compared to simpler approaches for fake news detection, under limited computational resources.
+[
+f_θ(x) → {0, 1}
+]
 
-We focus on the following research questions:
+parameterized by (θ), such that (f_θ(x)) predicts the correct label for new, unseen articles.
 
-1. **Modeling Power vs Simplicity**  
-   How does a simple classical baseline (e.g., TF-IDF + linear classifier) compare to a small neural text classifier and a pre-trained Transformer (DistilBERT) on this fake vs real news task?
+We train the model to minimize a **cross‑entropy loss** over the labeled training set and monitor validation metrics to detect overfitting.
 
-2. **Effect of Pre-training**  
-   Does fine-tuning a pre-trained Transformer (DistilBERT) significantly improve performance over training a small neural network from scratch on the same dataset?
+## 4. Data Splits and Evaluation
 
-3. **Model Size vs Performance Trade-off**  
-   How does **model size (number of parameters)** relate to the gains in performance? Is the extra complexity of a pre-trained Transformer justified by a meaningful improvement in accuracy/F1?
+We split the merged dataset into three parts:
 
-These questions align with a **comparative study of different machine learning approaches** on the same dataset, which is one of the recommended project types.
+* **Training set:** 70% of the data
+* **Validation set:** 15% of the data
+* **Test set:** 15% of the data
 
-## 4. Planned Models and Experimental Setup
+The splits are **stratified** by the label so that each split keeps a similar proportion of fake and real articles.
 
-To answer the research questions, we will implement and compare the following models:
+We report:
 
-### 4.1 Baseline: Classical Machine Learning
+* **Accuracy**
+* **Precision, Recall, F1‑score** for both classes
+* **Confusion matrix** (fake vs real)
 
-- **Model**: TF-IDF features + simple linear classifier  
-  (e.g., Logistic Regression or a one-hidden-layer feed-forward network)
-- **Input representation**:  
-  - Tokenize text
-  - Compute TF-IDF vectors over the vocabulary
-- **Purpose**:  
-  - Provide a strong, cheap baseline
-  - Show what can be achieved without deep learning or pre-training
+These metrics are computed on the held‑out **test set** after training.
 
-### 4.2 Small Neural Network (from scratch)
+## 5. Neural Network Architecture
 
-- **Model**: Lightweight neural text classifier, e.g.:
-  - An embedding layer + 1D CNN or BiLSTM over tokens, followed by a dense layer
-- **Input representation**:
-  - Learn word embeddings from scratch on this dataset
-- **Purpose**:
-  - Evaluate a “pure” neural network without external pre-training
-  - Compare with both the classical baseline and the Transformer model
+The main model used in this worksheet is a **pre‑trained Transformer**:
 
-### 4.3 Pre-trained Transformer (fine-tuned)
+* **Backbone:** DistilBERT (a smaller, faster version of BERT)
+* **Task head:** A small classification head on top of DistilBERT
 
-- **Model**: DistilBERT (or similar small Transformer) fine-tuned for binary classification on this dataset :contentReference[oaicite:2]{index=2}
-- **Input representation**:
-  - Use the pre-trained DistilBERT tokenizer for subword tokens
-- **Purpose**:
-  - Leverage pre-training on large general corpora
-  - Measure how much pre-training improves fake news detection vs. models trained only on this dataset
+Architecture summary:
 
-For each model we will record:
-- Training and validation performance (Accuracy, F1)
-- Test performance
-- Approximate **number of trainable parameters**
-- Basic runtime / training cost observations (e.g., epochs, training time per epoch)
+1. **Tokenizer:**
 
-## 5. Data Splitting, Evaluation, and Constraints
+   * Converts raw text into subword token IDs and attention masks.
+   * Truncates or pads sequences to a fixed maximum length.
+2. **DistilBERT encoder:**
 
-### 5.1 Data Splits
+   * Multiple Transformer layers with self‑attention and feed‑forward blocks.
+   * Produces contextual embeddings for each token in the sequence.
+3. **Classification head:**
 
-We will split the merged dataset into:
-- **Training set** (e.g., 70%)
-- **Validation set** (e.g., 15%)
-- **Test set** (e.g., 15%)
+   * Uses the pooled representation (based on the first token) as a summary of the article.
+   * Applies a small feed‑forward network and outputs logits for two classes: fake vs real.
+4. **Loss:**
 
-The split will be **stratified** by the binary label to preserve the proportion of fake vs real news in each split.
+   * Cross‑entropy loss between predicted logits and true labels.
 
-### 5.2 Evaluation Protocol
+We fine‑tune **all** parameters of the model (both the encoder and the classification head) on the fake vs real labels.
 
-1. Train each model on the training set.
-2. Use the validation set to:
-   - Tune hyperparameters (e.g., learning rate, max sequence length, regularization)
-   - Select the best checkpoint for each model
-3. Report final performance on the held-out test set:
-   - Accuracy
-   - Precision, Recall, F1 for fake and real classes
-   - Confusion matrix
+## 6. Implementation Details
 
-### 5.3 Computational Constraints
+The worksheet is implemented in **PyTorch** with **Lightning** to structure the training loop. Key steps in the notebook:
 
-- We assume **limited compute** (likely CPU or a single modest GPU).
-- To respect these constraints, we will:
-  - Use relatively small models (e.g., DistilBERT instead of full BERT)
-  - Limit maximum sequence length (truncate very long articles)
-  - Use a modest number of epochs and early stopping
-  - Optionally subsample the training data if needed for runtime
+1. **Setup and configuration**
+   Import libraries, detect the GPU (RTX 4070), and set global hyperparameters (batch size, max sequence length, etc.).
 
-Model size (number of parameters) will be explicitly computed and reported for each model to relate performance gains to model complexity.
+2. **Data loading and preprocessing**
+   Load `Fake.csv` and `True.csv`, create the `label` column, combine title and text, and split the data into train/validation/test sets.
 
-## 6. Expected Contributions
+3. **Tokenization and Dataset class**
+   Initialize the DistilBERT tokenizer and define a custom `NewsDataset` to convert text into token IDs, attention masks, and labels.
 
-By the end of the project we expect to:
+4. **DataLoaders**
+   Create `DataLoader`s for training, validation, and testing so that data can be processed in mini‑batches.
 
-1. Provide a **clear comparative study** of:
-   - A classical TF-IDF + linear model
-   - A small neural network trained from scratch
-   - A pre-trained Transformer fine-tuned on the fake news dataset
+5. **Model definition**
+   Define a `DistilBertClassifier` LightningModule that wraps the pre‑trained DistilBERT model, classification head, loss, and accuracy metric.
 
-2. Quantify how much **pre-training and model size** contribute to performance on fake news detection, under realistic computational limits.
+6. **Training and testing**
+   Use `Trainer.fit` to train the model on the training set while monitoring validation loss and accuracy, then `Trainer.test` to evaluate on the test set.
 
-3. Discuss typical **failure modes**, such as:
-   - Real news misclassified as fake (potential false positives)
-   - Fake news misclassified as real (dangerous false negatives)
+7. **Metrics and plots**
+   Load `metrics.csv` from `lightning_logs/version_0`, plot validation accuracy over epochs, and print the classification report and confusion matrix.
 
-4. Reflect on how these results could inform **practical fake news detection systems**, which often must trade off accuracy, model size, and inference cost.
+## 7. Possible Extensions
+
+Although the worksheet focuses on a pre‑trained Transformer, it can be extended to compare different approaches:
+
+* **Classical model:** TF‑IDF + Logistic Regression (or Linear SVM).
+* **Small neural model:** Simple CNN or LSTM using word embeddings learned from scratch.
+* **Ablation studies:** Vary maximum sequence length, training data size, or whether the DistilBERT encoder is frozen.
+
+These extensions can help explore trade‑offs between model size, training time, and performance on the fake news detection task.
