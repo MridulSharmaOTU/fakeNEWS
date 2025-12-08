@@ -125,12 +125,21 @@ The worksheet is implemented in **PyTorch** with **Lightning** to structure the 
 7. **Metrics and plots**
    Load `metrics.csv` from `lightning_logs/version_0`, plot validation accuracy over epochs, and print the classification report and confusion matrix.
 
-## 7. Possible Extensions
+### Run the GUI from source
 
-Although the worksheet focuses on a pre‑trained Transformer, it can be extended to compare different approaches:
+1. Place the exported model artifacts (including `model.safetensors`) in `export/fake_news_model/`.
+2. Install dependencies: `python -m pip install -r requirements.txt`.
+3. Launch the app: `python export/gui_app.py`.
 
-* **Classical model:** TF‑IDF + Logistic Regression (or Linear SVM).
-* **Small neural model:** Simple CNN or LSTM using word embeddings learned from scratch.
-* **Ablation studies:** Vary maximum sequence length, training data size, or whether the DistilBERT encoder is frozen.
+### Build a standalone executable with PyInstaller
 
-These extensions can help explore trade‑offs between model size, training time, and performance on the fake news detection task.
+1. Install build dependencies (PyInstaller is listed in `requirements.txt`):
+   ```bash
+   python -m pip install -r requirements.txt
+   ```
+2. Create a one-file bundle that includes the model assets:
+   ```bash
+   pyinstaller --onefile --name fake-news-detector --add-data "export/fake_news_model:fake_news_model" export/gui_app.py
+   ```
+   On Windows, replace the colon in `--add-data` with a semicolon: `export/fake_news_model;fake_news_model`.
+3. Run the executable from `dist/` (e.g., `./dist/fake-news-detector` on Linux/macOS or `dist\\fake-news-detector.exe` on Windows). The GUI will load the bundled model files automatically.
