@@ -123,12 +123,12 @@ The worksheet is implemented in **PyTorch** with **Lightning** to structure the 
    Use `Trainer.fit` to train the model on the training set while monitoring validation loss and accuracy, then `Trainer.test` to evaluate on the test set.
 
 7. **Metrics and plots**
-   Load `metrics.csv` from `lightning_logs/version_0`, plot validation accuracy over epochs, and print the classification report and confusion matrix.
+   Load `metrics.csv` from `lightning_logs/`, plot validation accuracy over epochs, and print the classification report and confusion matrix.
 
 ### Run the GUI from source
 
 1. Install dependencies: `python -m pip install -r requirements.txt`.
-2. Download the dataset from (Kaggle)[https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset] and add both `.csv` files into `.\data`.
+2. Download the dataset from [Kaggle](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset) and add both `.csv` files into a `.\data` folder.
 3. Run the notebook to place the exported model artifacts (including `model.safetensors`) in `export/fake_news_model/`.
 4. Launch the app: `python export/gui_app.py`.
 
