@@ -127,16 +127,18 @@ The worksheet is implemented in **PyTorch** with **Lightning** to structure the 
 
 ### Run the GUI from source
 
-1. Place the exported model artifacts (including `model.safetensors`) in `export/fake_news_model/`.
-2. Install dependencies: `python -m pip install -r requirements.txt`.
-3. Launch the app: `python export/gui_app.py`.
+1. Install dependencies: `python -m pip install -r requirements.txt`.
+2. Download the dataset from (Kaggle)[https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset] and add both `.csv` files into `.\data`.
+3. Run the notebook to place the exported model artifacts (including `model.safetensors`) in `export/fake_news_model/`.
+4. Launch the app: `python export/gui_app.py`.
 
 ### Build a standalone executable with PyInstaller
 
-1. Install build dependencies (PyInstaller is listed in `requirements.txt`):
+1. Install build dependencies:
    ```bash
    python -m pip install -r requirements.txt
    ```
+   Ensure to run the notebook to generate the `model.safetensors` file.
 2. Create a one-file bundle that includes the model assets:
    ```bash
    pyinstaller --onefile --name fake-news-detector --add-data "export/fake_news_model:fake_news_model" export/gui_app.py
